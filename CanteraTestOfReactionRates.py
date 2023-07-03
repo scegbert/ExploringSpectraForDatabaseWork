@@ -10,9 +10,9 @@ import matplotlib.pyplot as plt
 gas = ct.Solution('gri30.yaml')
 gas.basis = 'molar'
 
-X = 0.02
+X = 0.05
 
-target = 'CO' # 'CH4', 'CO'
+target = 'CH4' # 'CH4', 'CO'
 bath = 'air' # 'air' 'Ar', 'H2'
 
 if bath == 'air': 
@@ -21,10 +21,14 @@ else:
     gas.X = {target:X, bath:1-X}
 
 
-T_all = np.linspace(300, 1500) # K
-P_all = [10, 30, 90, 180, 400, 600] # Torr (converted to Pa later)
+T_all = np.linspace(300, 1300) # K
+P_all = [640] # [40, 80, 160, 320, 640] # Torr (converted to Pa later)
 
-co_left = np.zeros((len(P_all), len(T_all)))
+target_left = np.zeros((len(P_all), len(T_all)))
+bath_left = np.zeros((len(P_all), len(T_all)))
+
+
+plt.figure(figsize=(8,4))
 
 for i_P, P in enumerate(P_all): 
 
@@ -32,19 +36,32 @@ for i_P, P in enumerate(P_all):
     
         gas.TP = T, P*133.3
         
-        d_destruct = gas.destruction_rates[14] # kmol / m3 / s
-        v_CO = gas.v * X # specifiv volume of CO in m3 / kmol 
+        # d_destruct_H2 = gas.destruction_rates[0] # kmol / m3 / s of H2
+        d_destruct_H2 = gas.destruction_rates[3] # kmol / m3 / s of H2
+        v_bath = gas.v * (1-X) # specific volume of CO in m3 / kmol 
+        d_destruct_bath = d_destruct_H2*3600 * v_bath # destruction rate of CO per hour
+
         
-        d_destruct = d_destruct*3600 * v_CO # destruction rate of CO per hour
+        # d_destruct_target = gas.destruction_rates[14] # kmol / m3 / s of CO
+        d_destruct_target = gas.destruction_rates[13] # kmol / m3 / s of CH4
+
+        v_sample = gas.v * X # specific volume of CO in m3 / kmol 
+        d_destruct_target = d_destruct_target*3600 * v_sample # destruction rate of CO per hour
+
         
-        co_left_i = 1 - d_destruct
-        
-        co_left[i_P, i_T] = co_left_i
+        bath_left[i_P, i_T] = 1 - d_destruct_bath
+        target_left[i_P, i_T] = 1 - d_destruct_target
+
     
-    plt.plot(T_all, co_left[i_P, :], label='{} Torr'.format(int(P)))
+    plt.plot(T_all, target_left[i_P, :], label='{} Torr, {}'.format(int(P), target))
+    plt.plot(T_all, bath_left[i_P, :], '--', label='{} Torr, {}'.format(int(P), bath))
 
 # plt.yscale('log')
 plt.legend()
+plt.xlabel('Temperature (K)')
+plt.ylabel('Rate of Destruction (% remaining/ hour)')
+
+plt.ylim((0.999, 1.0001))
 
 
 

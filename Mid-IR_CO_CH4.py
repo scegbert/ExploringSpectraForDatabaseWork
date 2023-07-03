@@ -19,36 +19,44 @@ clipboard_and_style_sheet.style_sheet()
 
 #%% -------------------------------------- setup model parameters -------------------------------------- 
 
-file_which = 'diluted CH4'
-molecule = 'CH4'
+file_which = 'pure CO' # 'pure CO', 'diluted CO', 'pure CH4', 'diluted CH4'
 wvn_step = 0.0033 # 0.03 = 1 GHz, 0.0066 = 200 MHz, 0.0033 = 100 MHz
 
-PL = 0.1 # cm
-
+molecule = file_which.split()[-1]
 
 if molecule == 'CO':
 
     molecule_id = 5 # id's from HITRAN
     wvn_2 = [1850, 2325]
+
+    PL = 0.1 # cm
     
     T = [300, 500, 700, 900, 1100, 1300] # temperature in K
 
-    # P = [16,8,4,2,1] # pressure in Torr
-    # y = 1
-    P = [640,320,160,80,40] # pressure in Torr
-    y = 0.05
+    if file_which.split()[0] == 'pure': 
+        P = [8,4,2,1,0.5] # pressure in Torr
+        y = 1
+
+    elif file_which.split()[0] == 'diluted': 
+        P = [640,320,160,80,40] # pressure in Torr
+        y = 0.05
     
 if molecule == 'CH4':
 
     molecule_id = 6 # id's from HITRAN
     wvn_2 = [2700, 3250]
     
+    PL = 0.1 # cm
+    
     T = [300, 500, 700, 900, 1100, 1300] # temperature in K
 
-    P = [32,16,8,4,2] # pressure in Torr
-    y = 1
-    # P = [640,320,160,80,40] # pressure in Torr
-    # y = 0.05
+    if file_which.split()[0] == 'pure': 
+        P = [16,8,4,2,1] # pressure in Torr
+        y = 1
+
+    elif file_which.split()[0] == 'diluted': 
+        P = [640,320,160,80,40] # pressure in Torr
+        y = 0.05
 
 
 
