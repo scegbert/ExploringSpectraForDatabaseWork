@@ -15,6 +15,7 @@ X = 0.05
 target = 'CH4' # 'CH4', 'CO'
 bath = 'air' # 'air' 'Ar', 'H2'
 
+
 if bath == 'air': 
     gas.X = {target:X, 'O2':(1-X)*0.21, 'N2':(1-X)*0.78}    
 else: 
